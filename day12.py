@@ -1,3 +1,4 @@
+from math import gcd
 from itertools import permutations
 
 class Moon:
@@ -15,29 +16,32 @@ class Moon:
         kinetic = abs(self.vel[0]) + abs(self.vel[1]) + abs(self.vel[2])
         return potential * kinetic
 
+
 moons = [Moon([3, 2, -6]),
          Moon([-13, 18, 10]),
          Moon([-8, -1, 13]),
          Moon([5, 10, 4])]
 
 
-timesteps = 1000
-for step in range(timesteps):
-    for m in permutations(moons, 2):
-        if m[0].pos[0] > m[1].pos[0]:
-            m[0].vel[0] -= 1
-            m[1].vel[0] += 1
-        if m[0].pos[1] > m[1].pos[1]:
-            m[0].vel[1] -= 1
-            m[1].vel[1] += 1
-        if m[0].pos[2] > m[1].pos[2]:
-            m[0].vel[2] -= 1
-            m[1].vel[2] += 1
-    for moon in moons:
-        moon.apply_vel()
+timesteps = [0, 0, 0]
 
-energy = 0
-for moon in moons:
-    energy += moon.calc_energy()
+for c in range(3):
+    initial = [m.pos[c] for m in moons]
+    while True:
+        timesteps[c] += 1
+        for m in permutations(moons, 2):
+            if m[0].pos[c] > m[1].pos[c]:
+                m[0].vel[c] -= 1
+                m[1].vel[c] += 1
+        for moon in moons:
+            moon.apply_vel()
+        if [m.pos[c] for m in moons] == initial:
+            timesteps[c] += 1
+            break
 
-print(energy)
+print(timesteps)
+lcm = timesteps[0]
+for i in timesteps[1:]:
+  lcm = lcm*i//gcd(lcm, i)
+
+print(lcm)
