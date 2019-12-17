@@ -1,20 +1,19 @@
 import math
 import numpy as np
 
-input = "123456"*10
+input = 10000*"59750530221324194853012320069589312027523989854830232144164799228029162830477472078089790749906142587998642764059439173975199276254972017316624772614925079238407309384923979338502430726930592959991878698412537971672558832588540600963437409230550897544434635267172603132396722812334366528344715912756154006039512272491073906389218927420387151599044435060075148142946789007756800733869891008058075303490106699737554949348715600795187032293436328810969288892220127730287766004467730818489269295982526297430971411865028098708555709525646237713045259603175397623654950719275982134690893685598734136409536436003548128411943963263336042840301380655801969822"
 offset = int(input[:7])
-signal = [[int(d) for d in input]]
+input = [int(x) for x in input]
+input = input[offset:]
+for i in range(100):
+    print(i)
+    tempsum = sum(input)
+    #intptuf = [int(str(sum(input[c:]))[-1]) for c, d in enumerate(input)]
+    prev = input[0]
+    for c, d in enumerate(input):
+        if c > 0:
+            tempsum -= prev
+            prev = input[c]
+        input[c] = int(str(tempsum)[-1])
 
-pattern = np.empty((len(signal[0]), len(signal[0])))
-base = [0, 1, 0, -1]
-for j in range(len(signal[0])):
-    nbase = [item for sublist in [[x]*(j+1) for x in base] for item in sublist]
-    multiplier = math.ceil((len(signal[0]) + 1)/len(nbase))
-    applier = (nbase*multiplier)[1:len(signal[0])+1]
-    for i, d in enumerate(pattern):
-        pattern[i][j] = applier[i]
-
-for k in range(100):
-    result = np.matmul(signal, pattern)
-    signal = [[int(str(int(x))[-1]) for x in result[0]]]
-print(signal)
+print(input[:8])
