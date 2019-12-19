@@ -1,7 +1,9 @@
-from anytree import Node, RenderTree, findall, walker
+from anytree import Node, RenderTree, findall, find, walker
 import numpy as np
 import copy
+import sys
 
+sys.setrecursionlimit(100000)
 
 inp = """#################################################################################
 #.#.......#...........#...#............p#.....#.#...#...........#..w............#
@@ -89,31 +91,62 @@ inp = inp.split('\n')
 for i, line in enumerate(inp):
     inp[i] = list(line)
 
-print(inp)
+banned = [chr(x) for x in range(ord('A'), ord('Z') + 1)]
+while True:
+    flg = False
+    for j, row in enumerate(inp):
+        for i, tile in enumerate(row):
+            if tile in banned + ['.']:
+                try:
+                    up = inp[j - 1][i] in '#'
+                    down = inp[j + 1][i] in '#'
+                    left = inp[j][i - 1] in '#'
+                    right = inp[j][i + 1] in '#'
+                    result = sum([up, down, left, right])
+                    if result >= 3:
+                        flg = True
+                        inp[j][i] = '#'
+                except IndexError:
+                    pass
+    if not flg:
+        break
 
-def fin(crd, grid, node, banned):
+print(inp)
+fds = np.array(inp)
+
+
+def fin(crd, grid, node, special):
     try:
         if node.parent is None:
-            if grid[crd[0]][crd[1]] not in banned:
-                create(Node(crd, parent=node, tile=grid[crd[0]][crd[1]]), grid, banned)
+            if grid[crd[0]][crd[1]] in special:
+                Node(crd, parent=node, tile=grid[crd[0]][crd[1]])
+                return True
+            elif grid[crd[0]][crd[1]] != '#':
+                create(Node(crd, parent=node, tile=grid[crd[0]][crd[1]]), grid, special)
                 return True
         else:
-            if grid[crd[0]][crd[1]] not in banned and node.parent.name != crd:
-                create(Node(crd, parent=node, tile=grid[crd[0]][crd[1]]), grid, banned)
+            if len(node.children) != 0:
+                if node.children[0].name == crd:
+                    return False
+            if grid[crd[0]][crd[1]] in special and node.parent.name != crd:
+                Node(crd, parent=node, tile=grid[crd[0]][crd[1]])
+                return True
+            elif grid[crd[0]][crd[1]] != '#' and node.parent.name != crd:
+                create(Node(crd, parent=node, tile=grid[crd[0]][crd[1]]), grid, special)
                 return True
     except Exception as e:
         print(e)
     return False
 
-def create(node, grid, banned):
+def create(node, grid, special):
     flg = False
     crd = node.name
 
 
-    a1 = fin([crd[0] - 1, crd[1]], grid, node, banned)
-    a2 = fin([crd[0] + 1, crd[1]], grid, node, banned)
-    a3 = fin([crd[0], crd[1] - 1], grid, node, banned)
-    a4 = fin([crd[0], crd[1] + 1], grid, node, banned)
+    a1 = fin([crd[0] - 1, crd[1]], grid, node, special)
+    a2 = fin([crd[0] + 1, crd[1]], grid, node, special)
+    a3 = fin([crd[0], crd[1] - 1], grid, node, special)
+    a4 = fin([crd[0], crd[1] + 1], grid, node, special)
 
     if not (a1 or a2 or a3 or a4):
         return 0
@@ -128,25 +161,41 @@ for r, row in enumerate(inp):
 #daddy = Node(coords, tile='.')
 #create(daddy, np.array(inp))
 #print(RenderTree(node))
-steplist = []
-def generate(coords, grid, steps):
-    banned = [chr(x) for x in range(ord('A'), ord('Z') + 1)] + ['#']
-    keys = [chr(x) for x in range(ord('a'), ord('z') + 1)]
-    daddy = Node(coords, tile='.')
-    create(daddy, grid, banned)
-    keylocs = findall(daddy, lambda n: n.tile in keys)
+maxstep = 1000000000
+def generate(daddy, grid, steps):
+    global maxstep, banned, keys
+    #create(daddy, grid, banned+keys)
+    keylocs = findall(daddy.root, lambda n: n.tile in keys)
     if keylocs == ():
-        steplist.append(steps)
+        maxstep = steps
+        print(maxstep)
     for knode in keylocs:
-        nsteps = steps + knode.depth
         key = knode.tile
+        door = find(daddy.root, lambda n: n.tile == key.capitalize())
+        wak = walker.Walker()
+        walks = len([item for sublist in wak.walk(daddy, knode) if type(sublist) != Node for item in sublist])
+        nsteps = steps + walks
+
+        if nsteps >= maxstep:
+            return False
+
         ngrid = copy.deepcopy(grid)
         for i, row in enumerate(ngrid):
             for j, tile in enumerate(row):
                 if tile == key or tile == key.capitalize():
                     ngrid[i][j] = '.'
-        generate(knode.name, ngrid, nsteps)
+
+        create(knode, ngrid, banned + keys)
+        if door is not None:
+            create(door, ngrid, banned + keys)
+
+        newnode = copy.deepcopy(knode)
+        newnode.tile='.'
+        generate(newnode, ngrid, nsteps)
 
 print(coords)
-generate(coords, inp, 0)
-print(sorted(steplist))
+rooot = Node(coords, tile='.')
+keys = [chr(x) for x in range(ord('a'), ord('z') + 1)]
+
+create(rooot, inp, banned + keys)
+generate(rooot, inp, 0)
