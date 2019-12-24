@@ -2,7 +2,6 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 from anytree import Node, RenderTree, find, walker
-import sys
 
 class Intcode:
 
