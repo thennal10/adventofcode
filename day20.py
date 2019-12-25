@@ -217,12 +217,14 @@ for l1 in ports:
             portals[l1[0]] = [[l1[1], l1[2], l1[3]], [l2[1], l2[2], l2[3]]]
 
 
-grids = [copy.deepcopy(grid) for i in range(20000)]
+grids = [copy.deepcopy(grid) for i in range(50)]
 
 coords = [75, 2]
+#display(grids)
 #coords = [34, 15]
 
 def search(org_mode, a, b, org_steps, layer):
+    #display(grids)
     l = layer
     y, x = a, b
     mode = org_mode
@@ -246,7 +248,7 @@ def search(org_mode, a, b, org_steps, layer):
             #display(grids)
             if l == 0:
                 print("NICE")
-                display(grids)
+                #display(grids)
                 return True
             else:
                 return False
@@ -301,3 +303,4 @@ def search(org_mode, a, b, org_steps, layer):
     return False
 
 search(0, coords[0], coords[1], 0, 0)
+display(grids)
