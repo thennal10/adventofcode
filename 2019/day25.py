@@ -38,7 +38,7 @@ class Intcode:
         strinp = INP[0]
         INP = INP[1:]
         if strinp == 'save':
-            pickle.dump(self, open( "day25-2.p", "wb" ))
+            pickle.dump(self, open("day25-2.p", "wb"))
         return [ord(c) for c in strinp] + [ord('\n')]
     # main intcode program
     def run(self):
