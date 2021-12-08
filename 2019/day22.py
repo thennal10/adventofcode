@@ -1,5 +1,4 @@
 import math
-from sympy import symbols, simplify
 
 inp = """deal with increment 46
 cut 679
@@ -102,21 +101,24 @@ deal into new stack
 deal with increment 64
 cut 2470"""
 
-print(-3%10)
-x = symbols('x')
-exp = x
+
 total = 119315717514047
-#pos = 2019
-
-for instr in inp.split('\n'):
-    if instr == 'deal into new stack':
-        exp = total - 1 - exp
-    elif instr[:3] == 'cut':
-        cut = int(instr[3:])
-        exp = (exp - cut) % total
-    elif instr[:19] == 'deal with increment':
-        inc = int(instr[19:])
-        exp = (exp*inc) % total
-
-print(exp)
-print(simplify(exp))
+pos = 2020
+convert = {}
+for t in range(101741582076661):
+    try:
+        pos = convert[pos]
+        print("hey")
+    except KeyError:
+        old_pos = pos
+        for instr in inp.split('\n'):
+            if instr == 'deal into new stack':
+                pos = total - 1 - pos
+            elif instr[:3] == 'cut':
+                cut = int(instr[3:])
+                pos = (pos - cut) % total
+            elif instr[:19] == 'deal with increment':
+                inc = int(instr[19:])
+                pos = (pos*inc) % total
+        convert[old_pos] = pos
+print(pos)
