@@ -3,7 +3,7 @@ inp = [l.strip('\n').split('-') for l in open('./input.txt').readlines()]
 
 G = nx.Graph(inp)
 
-def walk(edges, node='start', count=0, visited=[], small_twice=True):
+def walk(node='start', count=0, visited=[], small_twice=False):
     if node == 'end':
         return 1
     elif node.islower() and node in visited:
@@ -13,9 +13,9 @@ def walk(edges, node='start', count=0, visited=[], small_twice=True):
             return 0
     
     c = count
-    for n2 in edges:
-        c += walk(G.adj[n2], n2, count, visited + [node], small_twice)
+    for n2 in G.adj[node]:
+        c += walk(n2, count, visited + [node], small_twice)
     return c
 
-print(walk(G.adj['start']))
-print(walk(G.adj['start'], small_twice=False))
+print(walk(small_twice=True))
+print(walk())
