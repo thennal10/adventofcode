@@ -13,7 +13,7 @@ def neighbours(i, j):
 
 def dijkstra(grid):
     queue = [(0, (0, 0))]
-    visited = {(i, j): False for i in range(len(grid)) for j in range(len(grid[0]))}
+    visited = set()
     while queue:
         risk, (i, j) = heapq.heappop(queue)
 
@@ -21,9 +21,9 @@ def dijkstra(grid):
             return risk
 
         for n in neighbours(i, j):
-            if not visited[n]:
+            if not n in visited:
                 heapq.heappush(queue, (risk + grid[n[0]][n[1]], n))
-                visited[n] = True
+                visited.add(n)
 
 print(dijkstra(input))
 
